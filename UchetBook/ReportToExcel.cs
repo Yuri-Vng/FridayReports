@@ -35,14 +35,19 @@ namespace Vng.Uchet
 {
     public class ReportToExcel
     {
-        Excel.Application xlApp;                            //Екземпляр приложения Excel
-        Excel.Worksheet xlSheet;                            //Лист
+        //Excel.Application xlApp;                            //Екземпляр приложения Excel
+        //Excel.Worksheet xlSheet;                            //Лист
         //Excel.Range xlSheetRange;                           //Выделеная область
 
         public void ExelObjecCars(OdbcDataReader reader)
         {
-            xlApp = new Excel.Application();
+            Excel.Application xlApp;                            //Екземпляр приложения Excel
+            Excel.Worksheet xlSheet;                            //Лист
+
+            //Excel.Range xlSheetRange;                           //Выделеная область
             //DateTime now = DateTime.Now;
+
+            xlApp = new Excel.Application();
 
             try
             {
@@ -198,57 +203,19 @@ namespace Vng.Uchet
             }
         }
 
-        private void ExcelData(OdbcDataReader reader, Excel.Worksheet xlSheet)
+        private void ExcelData(OdbcDataReader reader, Excel.Worksheet xlS)
         {
-            //DateTime now = DateTime.Now;
             try
             {
-                ////добавляем книгу
-                //xlApp.Workbooks.Add(Type.Missing);
-
-                //if (xlApp.Sheets.Count == 1)        //для office 13
-                //    xlApp.Sheets.Add();
-
-                //xlApp.EnableEvents = false;
-
-                ////I.Список ТС
-                ////выбираем лист на котором будем работать (Лист 1)
-                //xlSheet = (Excel.Worksheet)xlApp.Sheets[1];
-                ////Название листа
-                //xlSheet.Name = "Список ТС";
-                ////xlSheet.Tab.ThemeColor = Excel.XlThemeColor.xlThemeColorLight2;
-                ////цвет вкладки
-                //xlSheet.Tab.Color = 255;
-
-                ////string Zagolovok = "Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»";
-
-                //Excel.Range xlSheetRange;               //Выделеная область
-
-                //Задаем диапазон
-           
+                int topRow = 10;
                 DataTable dt = new DataTable();
-                // если есть данные
-                if (reader.HasRows)
-                {
-                    // Выгружаем DataReader в таблицу dt
-                    dt.Load(reader);
-                }
 
-                //DataTable dt2 = new DataTable();
-                //dt2.Load(reader);
-                
-                // Если несколько наборов данных
-                //while (reader.HasRows)
-                //{
-                //    while (reader.Read())
-                //    {
-                //    }
-                //    reader.NextResult();
-                //}
-
-                //https://qarchive.ru/88699_zapis__massiva_v_diapazon_excel
+                // Выгружаем DataReader в таблицу dt
+                dt.Load(reader);
 
                 // Создаём двухмерный массив и загружаем в него таблицу
+                //https://qarchive.ru/88699_zapis__massiva_v_diapazon_excel
+
                 object[,] arr = new object[dt.Rows.Count, dt.Columns.Count];
                 for (int r = 0; r < dt.Rows.Count; r++)
                 {
@@ -259,15 +226,12 @@ namespace Vng.Uchet
                     }
                 }
 
-                //int topRow = 1;
-                int topRow = 10;
-
+                #region Варианты форматирования
                 //oExcel.ActiveCell.NumberFormat = "#,##0.0"     '"#,##0.00"
                 //oExcel.ActiveCell.NumberFormat = "dd/mm/yyyyг.;@"
                 //oExcel.ActiveCell.NumberFormat = "[$-FC19]dd mmmm yyyy г.;@"
                 //oExcel.ActiveCell.NumberFormat = "m/d/yyyy"
                 //oExcel.ActiveCell.NumberFormat = "@"
-
 
                 //Excel.Range c1 = (Excel.Range)xlSheet.Cells[topRow, 2];                         //"B10"
                 //Excel.Range c2 = (Excel.Range)xlSheet.Cells[topRow + dt.Rows.Count - 1, 2];
@@ -277,34 +241,6 @@ namespace Vng.Uchet
                 ////range.Font.Name = "Arial";
                 //range.NumberFormat = "@";
 
-                // форматирование столбцов для вывода данных
-                ColumnFormat(2, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlSheet);   //инв.№
-                ColumnFormat(3, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlSheet);   //модель
-                ColumnFormat(4, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlSheet);    //гос.№
-                ColumnFormat(5, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "0000", xlSheet);    //год
-                ColumnFormat(6, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlSheet);    //VIN
-                ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlSheet);    //Кузов
-                ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlSheet);    //Шасси
-                ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlSheet);    //Двиг.
-                ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 9, 'C', "@", xlSheet);    //ПТС
-                ColumnFormat(11, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yyyy", xlSheet);    //дата поступления
-                ColumnFormat(12, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlSheet);    //бюджет
-                ColumnFormat(13, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlSheet);    //дата приказ ввода в эксп.
-                ColumnFormat(14, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlSheet);    //приказ ввода в эксп.
-                ColumnFormat(15, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlSheet);    //закреплен
-                ColumnFormat(16, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlSheet);    //дата приказ ввода в эксп.
-                ColumnFormat(17, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlSheet);    //приказ списания (передачи)
-                ColumnFormat(18, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlSheet);    //куда
-                ColumnFormat(19, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlSheet);    //закреплен
-
-                // Определяем диапазон таблицы в который зальём массив
-                Excel.Range c1 = (Excel.Range)xlSheet.Cells[topRow, 1];
-                Excel.Range c2 = (Excel.Range)xlSheet.Cells[topRow + dt.Rows.Count - 1, dt.Columns.Count];
-                Excel.Range range = xlSheet.get_Range(c1, c2);
-                range.Value = arr;
-                
-                range.VerticalAlignment = Excel.Constants.xlCenter;
-
                 //oExcel.Columns("A:A").ColumnWidth = 8
                 //oExcel.Columns("B:B").ColumnWidth = 25
                 //oExcel.Rows("4:4").Font.Bold = True
@@ -313,27 +249,37 @@ namespace Vng.Uchet
                 //oExcel.Rows("4:4").VerticalAlignment = xlCenter
                 //oExcel.Rows("4:4").Interior.ColorIndex = 8
                 //oExcel.Rows("4:4").HorizontalAlignment = xlCenter
+                #endregion
 
-                //try
-                //{
-                //    cn.Open();
-                //    SqlDataReader dr = cmd.ExecuteReader();
-                //    StringBuilder sb = new StringBuilder();
-                //    //Add Header
+                // форматирование столбцов для вывода данных
+                ColumnFormat(2, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);   //инв.№
+                ColumnFormat(3, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);   //модель
+                ColumnFormat(4, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlS);    //гос.№
+                ColumnFormat(5, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "0000", xlS);    //год
+                ColumnFormat(6, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlS);    //VIN
+                ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Кузов
+                ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Шасси
+                ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Двиг.
+                ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 9, 'C', "@", xlS);    //ПТС
+                ColumnFormat(11, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yyyy", xlS);    //дата поступления
+                ColumnFormat(12, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);    //бюджет
+                ColumnFormat(13, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
+                ColumnFormat(14, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ ввода в эксп.
+                ColumnFormat(15, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
+                ColumnFormat(16, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
+                ColumnFormat(17, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ списания (передачи)
+                ColumnFormat(18, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //куда
+                ColumnFormat(19, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
 
-                //    for (int count = 0; count < dr.FieldCount; count++)
-                //    {
-                //        if (dr.GetName(count) != null)
-                //            sb.Append(dr.GetName(count));
-                //        if (count < dr.FieldCount - 1)
-                //        {
-                //            sb.Append(",");
-                //        }
-                //    }
-                //    Response.Write(sb.ToString() + "\n");
-                //    Response.Flush();
-                //    //Append Data
+                // Определяем диапазон таблицы в который зальём массив
+                Excel.Range c1 = (Excel.Range)xlS.Cells[topRow, 1];
+                Excel.Range c2 = (Excel.Range)xlS.Cells[topRow + dt.Rows.Count - 1, dt.Columns.Count];
+                Excel.Range range = xlS.get_Range(c1, c2);
+                range.Value = arr;
+                
+                range.VerticalAlignment = Excel.Constants.xlCenter;
 
+                #region Проверка на Null
                 //https://www.codeproject.com/Articles/19269/Export-large-data-from-a-GridView-and-DataReader-t
                 //    while (dr.Read())
                 //    {
@@ -351,37 +297,24 @@ namespace Vng.Uchet
                 //        Response.Flush();
                 //    }
                 //    dr.Dispose();
+                #endregion
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            finally
-            {
-                //Показываем ексель
-                xlApp.Visible = true;
-
-                xlApp.Interactive = true;
-                xlApp.ScreenUpdating = true;
-                xlApp.UserControl = true;
-
-                //        //Отсоединяемся от Excel
-                //        releaseObject(xlSheetRange);
-                //        releaseObject(xlSheet);
-                //        releaseObject(xlApp);
-            }
         }
+
         private void ColumnFormat(int column, int topRow, int bottomRow, bool wrpText,
-                                    double tFont, char tHor, string tFormat, Excel.Worksheet xlSheet)
+                                    double tFont, char tHor, string tFormat, Excel.Worksheet xlSh)
         {
-            Excel.Range c1 = (Excel.Range)xlSheet.Cells[topRow, column];                         //"B10"
-            Excel.Range c2 = (Excel.Range)xlSheet.Cells[bottomRow, column];
-            Excel.Range range = xlSheet.get_Range(c1, c2);
+            Excel.Range c1 = (Excel.Range)xlSh.Cells[topRow, column];              //"B10"
+            Excel.Range c2 = (Excel.Range)xlSh.Cells[bottomRow, column];
+            Excel.Range range = xlSh.get_Range(c1, c2);
+            
             if (wrpText)
-            {
-                range.WrapText = wrpText;
-            }
-            //range.HorizontalAlignment = Excel.Constants.xlCenter;
+            { range.WrapText = wrpText; }
+
             switch (tHor)
             {
                 case 'C':                       //Задаем выравнивание по центру
@@ -396,13 +329,13 @@ namespace Vng.Uchet
                 default:
                     break;
             }
-            //range.Font.Size = 9;
+
             if (tFont > 0)
-            {
-                range.Font.Size = tFont;
-            }
+            { range.Font.Size = tFont; }
+
             //range.Font.Name = "Arial";
             //range.NumberFormat = "@";
+
             range.NumberFormat = tFormat; 
         }
     }
