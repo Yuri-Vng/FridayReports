@@ -59,5 +59,39 @@ namespace Vng.Common
                     break;
             }
         }
+
+        public void ColumnFormat(int column, int topRow, int bottomRow, bool wrpText,
+                             double tFont, char tHor, string tFormat, Excel.Worksheet xlSh)
+        {
+            Excel.Range c1 = (Excel.Range)xlSh.Cells[topRow, column];              //"B10"
+            Excel.Range c2 = (Excel.Range)xlSh.Cells[bottomRow, column];
+            Excel.Range range = xlSh.get_Range(c1, c2);
+
+            if (wrpText)
+            { range.WrapText = wrpText; }
+
+            switch (tHor)
+            {
+                case 'C':                       //Задаем выравнивание по центру
+                    range.HorizontalAlignment = Excel.Constants.xlCenter;
+                    break;
+                case 'L':
+                    range.HorizontalAlignment = Excel.Constants.xlLeft;
+                    break;
+                case 'R':
+                    range.HorizontalAlignment = Excel.Constants.xlRight;
+                    break;
+                default:
+                    break;
+            }
+
+            if (tFont > 0)
+            { range.Font.Size = tFont; }
+
+            //range.Font.Name = "Arial";
+            //range.NumberFormat = "@";
+
+            range.NumberFormat = tFormat;
+        }
     }
 }

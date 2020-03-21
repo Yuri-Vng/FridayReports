@@ -109,9 +109,6 @@ namespace Vng.Uchet
             xl.CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
                         tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0, xlSh: xlS);
 
-            //CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
-            //            tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0, xlSh: xlS);
-
             //////////////////////////////////////////////////////////////////////////////////
             //рисуем шапку таблицы
             //////////////////////////////////////////////////////////////////////////////////
@@ -158,6 +155,8 @@ namespace Vng.Uchet
 
         private void ExcelData(OdbcDataReader reader, Excel.Worksheet xlS)
         {
+            LibToExcel xl = new LibToExcel();
+
             try
             {
                 int topRow = 10;
@@ -205,24 +204,24 @@ namespace Vng.Uchet
                 #endregion
 
                 // форматирование столбцов для вывода данных
-                ColumnFormat(2, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);   //инв.№
-                ColumnFormat(3, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);   //модель
-                ColumnFormat(4, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlS);    //гос.№
-                ColumnFormat(5, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "0000", xlS);    //год
-                ColumnFormat(6, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlS);    //VIN
-                ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Кузов
-                ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Шасси
-                ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Двиг.
-                ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 9, 'C', "@", xlS);    //ПТС
-                ColumnFormat(11, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yyyy", xlS);    //дата поступления
-                ColumnFormat(12, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);    //бюджет
-                ColumnFormat(13, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
-                ColumnFormat(14, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ ввода в эксп.
-                ColumnFormat(15, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
-                ColumnFormat(16, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
-                ColumnFormat(17, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ списания (передачи)
-                ColumnFormat(18, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //куда
-                ColumnFormat(19, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
+                xl.ColumnFormat(2, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);   //инв.№
+                xl.ColumnFormat(3, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);   //модель
+                xl.ColumnFormat(4, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlS);    //гос.№
+                xl.ColumnFormat(5, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "0000", xlS);    //год
+                xl.ColumnFormat(6, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlS);    //VIN
+                xl.ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Кузов
+                xl.ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Шасси
+                xl.ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Двиг.
+                xl.ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 9, 'C', "@", xlS);    //ПТС
+                xl.ColumnFormat(11, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yyyy", xlS);    //дата поступления
+                xl.ColumnFormat(12, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);    //бюджет
+                xl.ColumnFormat(13, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
+                xl.ColumnFormat(14, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ ввода в эксп.
+                xl.ColumnFormat(15, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
+                xl.ColumnFormat(16, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
+                xl.ColumnFormat(17, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ списания (передачи)
+                xl.ColumnFormat(18, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //куда
+                xl.ColumnFormat(19, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
 
                 // Определяем диапазон таблицы в который зальём массив
                 Excel.Range c1 = (Excel.Range)xlS.Cells[topRow, 1];
@@ -256,40 +255,6 @@ namespace Vng.Uchet
             {
                 Console.WriteLine(ex.Message);
             }
-        }
-
-        private void ColumnFormat(int column, int topRow, int bottomRow, bool wrpText,
-                                    double tFont, char tHor, string tFormat, Excel.Worksheet xlSh)
-        {
-            Excel.Range c1 = (Excel.Range)xlSh.Cells[topRow, column];              //"B10"
-            Excel.Range c2 = (Excel.Range)xlSh.Cells[bottomRow, column];
-            Excel.Range range = xlSh.get_Range(c1, c2);
-            
-            if (wrpText)
-            { range.WrapText = wrpText; }
-
-            switch (tHor)
-            {
-                case 'C':                       //Задаем выравнивание по центру
-                    range.HorizontalAlignment = Excel.Constants.xlCenter;
-                    break;
-                case 'L':
-                    range.HorizontalAlignment = Excel.Constants.xlLeft;
-                    break;
-                case 'R':
-                    range.HorizontalAlignment = Excel.Constants.xlRight;
-                    break;
-                default:
-                    break;
-            }
-
-            if (tFont > 0)
-            { range.Font.Size = tFont; }
-
-            //range.Font.Name = "Arial";
-            //range.NumberFormat = "@";
-
-            range.NumberFormat = tFormat; 
         }
     }
 }
