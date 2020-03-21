@@ -1,12 +1,5 @@
 ﻿using System;
-
 using System.Data.Odbc;
-
-//using System.Data;
-//using System.Threading.Tasks;
-
-// Добавим COM MS Office 15.0 Object Library и MS Ecxel 15.0 Object Library
-//using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Vng.Uchet
 {
@@ -14,13 +7,15 @@ namespace Vng.Uchet
     {
         static void Main(string[] args)
         {
-            //ReadDataAsync().GetAwaiter();
-            LoadData();
+            LoadData();         
 
             Console.WriteLine("Hello World!");
             //Console.ReadLine();
         }
 
+        #region Асинхронный вызов
+        //using System.Threading.Tasks;
+        //ReadDataAsync().GetAwaiter();
         //http://novaevalex.blogspot.com/2013/12/fillasync-dbdataadapter-net-framework.html
         //private static async Task ReadDataAsync()
         //{
@@ -28,6 +23,10 @@ namespace Vng.Uchet
         //     t.Start();
         //    return;
         //}
+        //await connection.OpenAsync();
+        //OdbcDataReader reader = await command.ExecuteReaderAsync();
+        //SqlDataReader reader = await command.ExecuteReaderAsync();
+        #endregion
 
         private static void LoadData()
         {
@@ -44,35 +43,37 @@ namespace Vng.Uchet
                      + " FROM tblUchetBook "
                      + " WHERE GodV > ? "
                      + " ORDER BY id_Book ASC, nn ASC, Model DESC;";
-
+            
             //string queryString2 =
             //    "SELECT tblCarsNG.inn2, tblCarsNG.GodV, tblCarsNG.GosN, tblCarModel.Model "
             //        + "FROM tblCarModel INNER JOIN tblCarsNG "
             //            + "ON tblCarModel.idModel = tblCarsNG.id_Model "
             //        + "WHERE tblCarsNG.GodV > ? "
             //        + "ORDER BY tblCarModel.Model DESC;";
-
+            
             // Specify the parameter value.
             int paramValue = 1900;
 
             // Create and open the connection in a using block. This ensures that 
             // all resources will be closed and disposed when the code exits.
             using (OdbcConnection connection = new OdbcConnection(connectionString))
-            {
+            {        
                 //Create the Command and Parameter objects.
-                //OdbcCommand command = new OdbcCommand(queryString + queryString2, connection);
                 OdbcCommand command = new OdbcCommand(queryString, connection);
 
+                #region Вариант с двумя запросами и параметрами
                 //SqlCommand command = new SqlCommand(
                 //    "SELECT CategoryID, CategoryName FROM dbo.Categories;" +
                 //    "SELECT EmployeeID, LastName FROM dbo.Employees",
                 //    connection);
                 //connection.Open();
+                //OdbcCommand command = new OdbcCommand(queryString + queryString2, connection);
 
                 //// создаем параметр для возраста
                 //SqlParameter ageParam = new SqlParameter("@age", age);
                 //// добавляем параметр к команде
                 //command.Parameters.Add(ageParam);
+                #endregion
 
                 command.Parameters.AddWithValue("@name", paramValue);
 
@@ -82,20 +83,22 @@ namespace Vng.Uchet
                 {
                     connection.Open();
                     OdbcDataReader reader = command.ExecuteReader();
-                    //await connection.OpenAsync();
-                    //OdbcDataReader reader = await command.ExecuteReaderAsync();
 
-                    //SqlDataReader reader = await command.ExecuteReaderAsync();
+                    #region Последовательное считывание по строкам
                     //while (reader.Read())
                     //{
                     //    Console.WriteLine("\t{0}\t{1}\t{2}\t{3}", reader[0], reader[1], reader[2], reader[3]);                    
                     //}
+                    #endregion
 
-                    ReportToExcel xlTmpl = new ReportToExcel();                 
-                    xlTmpl.ExelObjecCars(reader);
-
+                    // если есть данные
+                    if (reader.HasRows)
+                    {
+                        // Выгружаем reader в таблицу 
+                        var xlTmpl = new ReportToExcel();
+                        xlTmpl.ExelObjecCars(reader);
+                    }
                     reader.Close();
-                    //return reader;
                 }
                 catch (Exception ex)
                 {

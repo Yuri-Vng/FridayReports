@@ -1,5 +1,4 @@
 ﻿using System;
-
 using System.Data;
 using System.Data.Odbc;
 
@@ -43,8 +42,7 @@ namespace Vng.Uchet
         public void ExelObjecCars(OdbcDataReader reader)
         {
             xlApp = new Excel.Application();
-            int startRow = 10;
-            DateTime now = DateTime.Now;
+            //DateTime now = DateTime.Now;
 
             try
             {
@@ -52,20 +50,19 @@ namespace Vng.Uchet
                 xlApp.Workbooks.Add(Type.Missing);
 
                 if (xlApp.Sheets.Count == 1)        //для office 13
-                    xlApp.Sheets.Add();
+                { 
+                    xlApp.Sheets.Add(); 
+                }                   
+                xlApp.EnableEvents = false;     //отключить события в excel
 
-                xlApp.EnableEvents = false;
-
-                //I.Счета в работе
+            //I.Список ТС
                 //выбираем лист на котором будем работать (Лист 1)
                 xlSheet = (Excel.Worksheet)xlApp.Sheets[1];
                 //Название листа
                 xlSheet.Name = "Список ТС";
-                //xlSheet.Tab.ThemeColor = Excel.XlThemeColor.xlThemeColorLight2;
                 //цвет вкладки
                 xlSheet.Tab.Color = 255;
-
-                //string Zagolovok = "Счета " + "qqq" + " в работе на " + now.ToString("dd.MM.yyyy") + "г.";
+                // Заголовог таблицы
                 string Zagolovok = "Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»";
 
                 // названия столбцов таблицы
@@ -74,7 +71,6 @@ namespace Vng.Uchet
                 ExcelData(reader, xlSheet);
                 // итоги
                 //Podval();
-
             }
             catch (Exception ex)
             {
@@ -94,87 +90,81 @@ namespace Vng.Uchet
                 //        releaseObject(xlSheet);
                 //        releaseObject(xlApp);
             }
-
         }
 
         //создание заголовка таблицы
-        private void Shapka(string Zagolovok, Excel.Worksheet xlSheet)
+        private void Shapka(string Zagolovok, Excel.Worksheet xlS)
         {
-            Excel.Range xlSheetRange;                               //Выделеная область
+            Excel.Range xlSheetRange;               //Выделеная область
 
-            //Задаем диапазон
-            xlSheetRange = xlSheet.get_Range("A3", "S9");
-            //Задаем выравнивание по центру для выбранного диапазона
-            xlSheetRange.HorizontalAlignment = Excel.Constants.xlCenter;
-            xlSheetRange.VerticalAlignment = Excel.Constants.xlCenter;
-            //Задаем размер шрифта для выбранного диапазона
-            xlSheetRange.Font.Size = 11;
-
-            CellMerge(Zagolovok, "A3", "S3", 0, false, 14, 'C', 'C', xlSheet);
+            CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
+                        tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0, xlSh: xlS);
 
             //////////////////////////////////////////////////////////////////////////////////
             //рисуем шапку таблицы
             //////////////////////////////////////////////////////////////////////////////////
 
-            //Выбираем диапазон (ячейку) для вывода 
-            CellMerge("№ п/п", "A5", "A9", 5.14, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Инв. №", "B5", "B9", 11.57, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Марка, модель ТС", "C5", "C9", 16.0, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Гос. №", "D5", "D9", 12.14, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Год выпуска", "E5", "E9", 7.71, true, 0, 'N', 'N', xlSheet);
-            CellMerge("VIN", "F5", "F9", 20.0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("№ кузова", "G5", "G9", 20.0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("№ шасси", "H5", "H9", 20.0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("№ двигателя", "I5", "I9", 20.0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("№ ПТС", "J5", "J9", 14.43, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Сведения о поступлении ТС", "K5", "L6", 0, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Дата", "K7", "K9", 9.86, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Источник приобре-тения", "L7", "L9", 10.0, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Приказ ввода в эксплуатацию", "M5", "N6", 13.71, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Дата", "M7", "M9", 9.86, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Номер", "N7", "N9", 10.0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Орган (служба) за которым закреплено ТС", "O5", "O9", 17.57, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Сведения о передаче или списании ТС", "P5", "R6", 0, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Приказ", "P7", "Q7", 0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Дата", "P8", "P9", 9.86, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Номер", "Q8", "Q9", 10.0, false, 0, 'N', 'N', xlSheet);
-            CellMerge("Куда передено", "R7", "R9", 17.0, true, 0, 'N', 'N', xlSheet);
-            CellMerge("Примечания", "S5", "S9", 20.0, false, 0, 'N', 'N', xlSheet);
-
+            //Задаем диапазон для подписей таблицы
+            xlSheetRange = xlS.get_Range("A5", "S9");
+            //Задаем выравнивание по центру для выбранного диапазона
+            xlSheetRange.HorizontalAlignment = Excel.Constants.xlCenter;
+            xlSheetRange.VerticalAlignment = Excel.Constants.xlCenter;
+            //Задаем размер шрифта для выбранного диапазона
+            xlSheetRange.Font.Size = 11;
             //Границы
-            xlSheetRange = xlSheet.get_Range("A5", "S9");
             //Устанавливаем цвет обводки
             xlSheetRange.Borders.ColorIndex = 1;
             //Устанавливаем стиль и толщину линии
             xlSheetRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
             xlSheetRange.Borders.Weight = Excel.XlBorderWeight.xlThin;
 
-            ////Задаем выравнивание по центру
-            //xlSheetRange.HorizontalAlignment = Excel.Constants.xlCenter;
-            //xlSheetRange.VerticalAlignment = Excel.Constants.xlCenter;
+            //Выбираем диапазон (ячейку) для вывода 
+            CellMerge("№ п/п", "A5", "A9", 5.14, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Инв. №", "B5", "B9", 11.57, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Марка, модель ТС", "C5", "C9", 16.0, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Гос. №", "D5", "D9", 12.14, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Год выпуска", "E5", "E9", 5.0, true, 10, 'N', 'N', 90, xlS);
+            CellMerge("VIN", "F5", "F9", 20.0, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("№ кузова", "G5", "G9", 18.57, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("№ шасси", "H5", "H9", 18.57, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("№ двигателя", "I5", "I9", 18.57, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("№ ПТС", "J5", "J9", 13.3, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Сведения о поступлении ТС", "K5", "L6", 0, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Дата", "K7", "K9", 9.86, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Источник приобре-тения", "L7", "L9", 0, true, 10, 'N', 'N', 0, xlS);
+            CellMerge("Приказ ввода в эксплуатацию", "M5", "N6", 13.71, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Дата", "M7", "M9", 9.86, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Номер", "N7", "N9", 10.0, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Орган (служба) за которым закреплено ТС", "O5", "O9", 17.57, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Сведения о передаче или списании ТС", "P5", "R6", 0, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Приказ", "P7", "Q7", 0, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Дата", "P8", "P9", 9.86, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Номер", "Q8", "Q9", 10.0, false, 0, 'N', 'N', 0, xlS);
+            CellMerge("Куда передено", "R7", "R9", 17.0, true, 0, 'N', 'N', 0, xlS);
+            CellMerge("Примечания", "S5", "S9", 20.0, false, 0, 'N', 'N', 0, xlS);
         }
 
-        private void CellMerge(string title, string cell1, string cell2, double tWidth, bool wrpText,
-                                    double tFont, char tHor, char tVer, Excel.Worksheet xlSheet)
+        private void CellMerge(string title, string cell1, string cell2, double tWidth, 
+                                    bool wrpText, double tFont, char tHor, char tVer, 
+                                    int tOrient, Excel.Worksheet xlSh)
         {
             Excel.Range xlSheetRange;               //Выделеная область
 
-            xlSheetRange = xlSheet.get_Range(cell1, cell2);
-            if (wrpText)
-            {
-                xlSheetRange.WrapText = wrpText;
-            }
-            //Объединяем ячейки
+            // диапазон
+            xlSheetRange = xlSh.get_Range(cell1, cell2);
+            // Объединяем ячейки
             xlSheetRange.Merge(Type.Missing);
             xlSheetRange.Value2 = title;
+            xlSheetRange.Orientation = tOrient;
+
+            if (wrpText) 
+            { xlSheetRange.WrapText = wrpText; }
+
             if (tWidth > 0)
-            {
-                xlSheetRange.ColumnWidth = tWidth;
-            }
+            { xlSheetRange.ColumnWidth = tWidth; }
+
             if (tFont > 0)
-            {
-                xlSheetRange.Font.Size = tFont;
-            }
+            { xlSheetRange.Font.Size = tFont; }
 
             switch (tHor)
             {
@@ -293,10 +283,10 @@ namespace Vng.Uchet
                 ColumnFormat(4, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlSheet);    //гос.№
                 ColumnFormat(5, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "0000", xlSheet);    //год
                 ColumnFormat(6, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlSheet);    //VIN
-                ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlSheet);    //Кузов
-                ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlSheet);    //Шасси
-                ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlSheet);    //Двиг.
-                ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlSheet);    //ПТС
+                ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlSheet);    //Кузов
+                ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlSheet);    //Шасси
+                ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlSheet);    //Двиг.
+                ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 9, 'C', "@", xlSheet);    //ПТС
                 ColumnFormat(11, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yyyy", xlSheet);    //дата поступления
                 ColumnFormat(12, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlSheet);    //бюджет
                 ColumnFormat(13, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlSheet);    //дата приказ ввода в эксп.
