@@ -5,6 +5,8 @@ using System.Data.Odbc;
 // Добавим COM MS Office 15.0 Object Library и MS Ecxel 15.0 Object Library
 using Excel = Microsoft.Office.Interop.Excel;
 
+using Vng.Common;
+
 #region Excel in Core.3
 /*
 // Если в версии .Net Core 3.1 не работает Ecxel.
@@ -101,9 +103,14 @@ namespace Vng.Uchet
         private void Shapka(string Zagolovok, Excel.Worksheet xlS)
         {
             Excel.Range xlSheetRange;               //Выделеная область
+            
+            LibToExcel xl = new LibToExcel();
 
-            CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
+            xl.CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
                         tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0, xlSh: xlS);
+
+            //CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
+            //            tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0, xlSh: xlS);
 
             //////////////////////////////////////////////////////////////////////////////////
             //рисуем шапку таблицы
@@ -124,83 +131,29 @@ namespace Vng.Uchet
             xlSheetRange.Borders.Weight = Excel.XlBorderWeight.xlThin;
 
             //Выбираем диапазон (ячейку) для вывода 
-            CellMerge("№ п/п", "A5", "A9", 5.14, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Инв. №", "B5", "B9", 11.57, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Марка, модель ТС", "C5", "C9", 16.0, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Гос. №", "D5", "D9", 12.14, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Год выпуска", "E5", "E9", 5.0, true, 10, 'N', 'N', 90, xlS);
-            CellMerge("VIN", "F5", "F9", 20.0, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("№ кузова", "G5", "G9", 18.57, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("№ шасси", "H5", "H9", 18.57, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("№ двигателя", "I5", "I9", 18.57, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("№ ПТС", "J5", "J9", 13.3, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Сведения о поступлении ТС", "K5", "L6", 0, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Дата", "K7", "K9", 9.86, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Источник приобре-тения", "L7", "L9", 0, true, 10, 'N', 'N', 0, xlS);
-            CellMerge("Приказ ввода в эксплуатацию", "M5", "N6", 13.71, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Дата", "M7", "M9", 9.86, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Номер", "N7", "N9", 10.0, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Орган (служба) за которым закреплено ТС", "O5", "O9", 17.57, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Сведения о передаче или списании ТС", "P5", "R6", 0, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Приказ", "P7", "Q7", 0, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Дата", "P8", "P9", 9.86, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Номер", "Q8", "Q9", 10.0, false, 0, 'N', 'N', 0, xlS);
-            CellMerge("Куда передено", "R7", "R9", 17.0, true, 0, 'N', 'N', 0, xlS);
-            CellMerge("Примечания", "S5", "S9", 20.0, false, 0, 'N', 'N', 0, xlS);
-        }
-
-        private void CellMerge(string title, string cell1, string cell2, double tWidth, 
-                                    bool wrpText, double tFont, char tHor, char tVer, 
-                                    int tOrient, Excel.Worksheet xlSh)
-        {
-            Excel.Range xlSheetRange;               //Выделеная область
-
-            // диапазон
-            xlSheetRange = xlSh.get_Range(cell1, cell2);
-            // Объединяем ячейки
-            xlSheetRange.Merge(Type.Missing);
-            xlSheetRange.Value2 = title;
-            xlSheetRange.Orientation = tOrient;
-
-            if (wrpText) 
-            { xlSheetRange.WrapText = wrpText; }
-
-            if (tWidth > 0)
-            { xlSheetRange.ColumnWidth = tWidth; }
-
-            if (tFont > 0)
-            { xlSheetRange.Font.Size = tFont; }
-
-            switch (tHor)
-            {
-                case 'C':                       //Задаем выравнивание по центру
-                    xlSheetRange.HorizontalAlignment = Excel.Constants.xlCenter;
-                    break;
-                case 'L':
-                    xlSheetRange.HorizontalAlignment = Excel.Constants.xlLeft;
-                    break;
-                case 'R':
-                    xlSheetRange.HorizontalAlignment = Excel.Constants.xlRight;
-                    break;
-                default:
-                    break;
-            }
-
-            switch (tVer)
-            {
-                case 'C':
-                    //Задаем выравнивание по центру
-                    xlSheetRange.VerticalAlignment = Excel.Constants.xlCenter;
-                    break;
-                case 'T':
-                    xlSheetRange.VerticalAlignment = Excel.Constants.xlTop;
-                    break;
-                case 'B':
-                    xlSheetRange.VerticalAlignment = Excel.Constants.xlBottom;
-                    break;
-                default:
-                    break;
-            }
+            xl.CellMerge("№ п/п", "A5", "A9", 5.14, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Инв. №", "B5", "B9", 11.57, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Марка, модель ТС", "C5", "C9", 16.0, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Гос. №", "D5", "D9", 12.14, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Год выпуска", "E5", "E9", 5.0, true, 10, 'N', 'N', 90, xlS);
+            xl.CellMerge("VIN", "F5", "F9", 20.0, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("№ кузова", "G5", "G9", 18.57, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("№ шасси", "H5", "H9", 18.57, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("№ двигателя", "I5", "I9", 18.57, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("№ ПТС", "J5", "J9", 13.3, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Сведения о поступлении ТС", "K5", "L6", 0, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Дата", "K7", "K9", 9.86, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Источник приобре-тения", "L7", "L9", 0, true, 10, 'N', 'N', 0, xlS);
+            xl.CellMerge("Приказ ввода в эксплуатацию", "M5", "N6", 13.71, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Дата", "M7", "M9", 9.86, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Номер", "N7", "N9", 10.0, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Орган (служба) за которым закреплено ТС", "O5", "O9", 17.57, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Сведения о передаче или списании ТС", "P5", "R6", 0, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Приказ", "P7", "Q7", 0, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Дата", "P8", "P9", 9.86, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Номер", "Q8", "Q9", 10.0, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Куда передено", "R7", "R9", 17.0, true, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("Примечания", "S5", "S9", 20.0, false, 0, 'N', 'N', 0, xlS);
         }
 
         private void ExcelData(OdbcDataReader reader, Excel.Worksheet xlS)
