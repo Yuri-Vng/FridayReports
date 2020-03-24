@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Data;
 using System.Data.Odbc;
+using System.IO;
 
 // Добавим COM MS Office 15.0 Object Library и MS Ecxel 15.0 Object Library
 using Excel = Microsoft.Office.Interop.Excel;
 
 using Vng.Common;
+using Microsoft.Office.Interop.Excel;
 
 #region Excel in Core.3
 /*
@@ -35,49 +37,130 @@ using Vng.Common;
 
 namespace Vng.Uchet
 {
+    //public class UchetBookToExcel: ReportToExcel
+    //{
+    //    //public UchetBookToExcel(OdbcDataReader reader) : base (reader)
+    //    //{ 
+    //    //}
+
+    //    //public void CreateSheet()
+    //    //{
+    //    //    //try
+    //    //    //{
+    //    //    //    //добавляем книгу
+    //    //    //    xlApp.Workbooks.Add(Type.Missing);
+
+    //    //    //    if (xlApp.Sheets.Count == 1)        //для office 13
+    //    //    //    {
+    //    //    //        xlApp.Sheets.Add();
+    //    //    //    }
+    //    //    //    xlApp.EnableEvents = false;     //отключить события в excel
+
+    //    //    //    //I.Список ТС
+    //    //    //    //выбираем лист на котором будем работать (Лист 1)
+    //    //    //    xlSheet = (Excel.Worksheet)xlApp.Sheets[1];
+    //    //    //    //Название листа
+    //    //    //    xlSheet.Name = "Список ТС";
+    //    //    //    //цвет вкладки
+    //    //    //    xlSheet.Tab.Color = 255;
+    //    //    //    // Заголовог таблицы
+    //    //    //    string Zagolovok = "Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»";
+
+    //    //    //    // названия столбцов таблицы
+    //    //    //    Shapka(Zagolovok, xlSheet);
+    //    //    //    // вывод данных
+    //    //    //    ExcelData(xlSheet);
+    //    //    //    // итоги
+    //    //    //    //Podval();
+    //    //    //}
+    //    //    //catch (Exception ex)
+    //    //    //{
+    //    //    //    Console.WriteLine(ex.ToString());
+    //    //    //}
+    //    //    //finally
+    //    //    //{
+    //    //    //    //Показываем ексель
+    //    //    //    xlApp.Visible = true;
+
+    //    //    //    xlApp.Interactive = true;
+    //    //    //    xlApp.ScreenUpdating = true;
+    //    //    //    xlApp.UserControl = true;
+
+    //    //    //    //Отсоединяемся от Excel
+    //    //    //    //releaseObject(xlSheetRange);
+    //    //    //    releaseObject(xlSheet);
+    //    //    //    releaseObject(xlApp);
+    //    //    //}
+    //    //}
+    //}
+
     public class ReportToExcel
     {
-        //Excel.Application xlApp;                            //Екземпляр приложения Excel
-        //Excel.Worksheet xlSheet;                            //Лист
-        //Excel.Range xlSheetRange;                           //Выделеная область
+        public Application? xlApp;                    //Екземпляр приложения Excel.Application
+        Worksheet? xlSheet;                           //Лист Excel.Worksheet
+       //Excel.Range xlSheetRange;                   //Выделеная область
 
-        public void ExelObjecCars(OdbcDataReader reader)
+        public OdbcDataReader? Reader { get; set; }
+        public System.Data.DataTable? dt { get; set; }
+
+        public ReportToExcel() : this (null, null) 
         {
-            Excel.Application xlApp;                            //Екземпляр приложения Excel
-            Excel.Worksheet xlSheet;                            //Лист
+        }
 
-            //Excel.Range xlSheetRange;                           //Выделеная область
-            //DateTime now = DateTime.Now;
+        public ReportToExcel(System.Data.DataTable? table, string? tDir)
+        {
+            dt = table;
+            xlApp = new Application();
 
-            xlApp = new Excel.Application();
-
-            try
+            // создаем отчет программно
+            if  (tDir == null)                         //if (tDir == "")
             {
                 //добавляем книгу
                 xlApp.Workbooks.Add(Type.Missing);
-
                 if (xlApp.Sheets.Count == 1)        //для office 13
-                { 
-                    xlApp.Sheets.Add(); 
-                }                   
-                xlApp.EnableEvents = false;     //отключить события в excel
+                {
+                    xlApp.Sheets.Add();
+                }
+            }
+            // создаем отчет на основе шаблона
+            else
+            {
+                //xlApp.Workbooks.Open(
+                //     @"D:\19\VNG\FridayReports\UchetBook\Templates\UchetBook.xltx");
 
-            //I.Список ТС
-                //выбираем лист на котором будем работать (Лист 1)
-                xlSheet = (Excel.Worksheet)xlApp.Sheets[1];
-                //Название листа
-                xlSheet.Name = "Список ТС";
-                //цвет вкладки
-                xlSheet.Tab.Color = 255;
-                // Заголовог таблицы
-                string Zagolovok = "Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»";
+  
 
-                // названия столбцов таблицы
-                Shapka(Zagolovok, xlSheet);
-                // вывод данных
-                ExcelData(reader, xlSheet);
-                // итоги
-                //Podval();
+                string projectDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
+                xlApp.Workbooks.Open(projectDir + @"\Templates\UchetBook.xltx");
+
+                // в рабочем варианте
+                //xlApp.Workbooks.Open(Environment.CurrentDirectory + @"\Templates\UchetBook.xltx");
+            }
+            xlApp.EnableEvents = false;     //отключить события в excel
+        }
+
+        // работаем с Excel
+        public void ExelObjecCars(string zagolovok)
+        {
+            try
+            {
+                //I.Список ТС
+                if (xlApp != null)
+                {
+                    //выбираем лист на котором будем работать (Лист 1)
+                    xlSheet = (Worksheet)xlApp.Sheets[1];
+                    //Название листа
+                    xlSheet.Name = "Список ТС";
+                    //цвет вкладки
+                    xlSheet.Tab.Color = 255;
+
+                    // названия столбцов таблицы
+                    Shapka(zagolovok, xlSheet);
+                    // вывод данных
+                    ExcelData(xlSheet);
+                    // итоги
+                    //Podval();
+                }
             }
             catch (Exception ex)
             {
@@ -85,29 +168,55 @@ namespace Vng.Uchet
             }
             finally
             {
-                //Показываем ексель
-                xlApp.Visible = true;
+                if (xlApp != null)
+                {
+                    //Показываем ексель
+                    xlApp.Visible = true;
 
-                xlApp.Interactive = true;
-                xlApp.ScreenUpdating = true;
-                xlApp.UserControl = true;
+                    xlApp.Interactive = true;
+                    xlApp.ScreenUpdating = true;
+                    xlApp.UserControl = true;
 
-                //        //Отсоединяемся от Excel
-                //        releaseObject(xlSheetRange);
-                //        releaseObject(xlSheet);
-                //        releaseObject(xlApp);
+                    //Отсоединяемся от Excel
+                    //releaseObject(xlSheetRange);
+                    if (xlSheet != null)
+                    {
+                        releaseObject(xlSheet);
+                    }
+                    releaseObject(xlApp);
+                }
+            }
+        }
+
+        // выгружаем Excel из памяти
+        private void releaseObject(object obj)
+        {
+            try
+            {
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                obj = null;
+            }
+            catch (Exception ex)
+            {
+                obj = null;
+                Console.WriteLine(ex.ToString(), "Ошибка!");
+            }
+            finally
+            {
+                GC.Collect();
             }
         }
 
         //создание заголовка таблицы
-        private void Shapka(string Zagolovok, Excel.Worksheet xlS)
+        private void Shapka(string zglvk, Worksheet xlS)
         {
-            Excel.Range xlSheetRange;               //Выделеная область
-            
-            LibToExcel xl = new LibToExcel();
+            Excel.Range xlSheetRange;               //Выделеная область Excel.Range
 
-            xl.CellMerge(title: Zagolovok, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
-                        tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0, xlSh: xlS);
+            LibToExcel xl = new LibToExcel(xlS);
+
+            // Заголовог таблицы
+            xl.CellMerge(title: zglvk, cell1: "A3", cell2: "S3", tWidth: 0, wrpText: false,
+                        tFont: 14, tHor: 'C', tVer: 'C', tOrient: 0);
 
             //////////////////////////////////////////////////////////////////////////////////
             //рисуем шапку таблицы
@@ -128,45 +237,45 @@ namespace Vng.Uchet
             xlSheetRange.Borders.Weight = Excel.XlBorderWeight.xlThin;
 
             //Выбираем диапазон (ячейку) для вывода 
-            xl.CellMerge("№ п/п", "A5", "A9", 5.14, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Инв. №", "B5", "B9", 11.57, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Марка, модель ТС", "C5", "C9", 16.0, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Гос. №", "D5", "D9", 12.14, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Год выпуска", "E5", "E9", 5.0, true, 10, 'N', 'N', 90, xlS);
-            xl.CellMerge("VIN", "F5", "F9", 20.0, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("№ кузова", "G5", "G9", 18.57, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("№ шасси", "H5", "H9", 18.57, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("№ двигателя", "I5", "I9", 18.57, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("№ ПТС", "J5", "J9", 13.3, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Сведения о поступлении ТС", "K5", "L6", 0, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Дата", "K7", "K9", 9.86, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Источник приобре-тения", "L7", "L9", 0, true, 10, 'N', 'N', 0, xlS);
-            xl.CellMerge("Приказ ввода в эксплуатацию", "M5", "N6", 13.71, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Дата", "M7", "M9", 9.86, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Номер", "N7", "N9", 10.0, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Орган (служба) за которым закреплено ТС", "O5", "O9", 17.57, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Сведения о передаче или списании ТС", "P5", "R6", 0, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Приказ", "P7", "Q7", 0, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Дата", "P8", "P9", 9.86, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Номер", "Q8", "Q9", 10.0, false, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Куда передено", "R7", "R9", 17.0, true, 0, 'N', 'N', 0, xlS);
-            xl.CellMerge("Примечания", "S5", "S9", 20.0, false, 0, 'N', 'N', 0, xlS);
+            xl.CellMerge("№ п/п", "A5", "A9", 5.14, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Инв. №", "B5", "B9", 11.57, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Марка, модель ТС", "C5", "C9", 16.0, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Гос. №", "D5", "D9", 12.14, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Год выпуска", "E5", "E9", 5.0, true, 10, 'N', 'N', 90);
+            xl.CellMerge("VIN", "F5", "F9", 20.0, false, 0, 'N', 'N', 0);
+            xl.CellMerge("№ кузова", "G5", "G9", 18.57, false, 0, 'N', 'N', 0);
+            xl.CellMerge("№ шасси", "H5", "H9", 18.57, false, 0, 'N', 'N', 0);
+            xl.CellMerge("№ двигателя", "I5", "I9", 18.57, false, 0, 'N', 'N', 0);
+            xl.CellMerge("№ ПТС", "J5", "J9", 13.3, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Сведения о поступлении ТС", "K5", "L6", 0, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Дата", "K7", "K9", 9.86, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Источник приобре-тения", "L7", "L9", 0, true, 10, 'N', 'N', 0);
+            xl.CellMerge("Приказ ввода в эксплуатацию", "M5", "N6", 13.71, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Дата", "M7", "M9", 9.86, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Номер", "N7", "N9", 10.0, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Орган (служба) за которым закреплено ТС", "O5", "O9", 17.57, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Сведения о передаче или списании ТС", "P5", "R6", 0, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Приказ", "P7", "Q7", 0, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Дата", "P8", "P9", 9.86, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Номер", "Q8", "Q9", 10.0, false, 0, 'N', 'N', 0);
+            xl.CellMerge("Куда передено", "R7", "R9", 17.0, true, 0, 'N', 'N', 0);
+            xl.CellMerge("Примечания", "S5", "S9", 20.0, false, 0, 'N', 'N', 0);
         }
 
-        private void ExcelData(OdbcDataReader reader, Excel.Worksheet xlS)
+        // загрузка данных
+        private void ExcelData(Worksheet xlS)
         {
-            LibToExcel xl = new LibToExcel();
+            LibToExcel xl = new LibToExcel(xlS);
 
             try
             {
                 int topRow = 10;
-                DataTable dt = new DataTable();
+                int bottomRow;
+                int nRw;                // количество строк в таблице
 
-                // Выгружаем DataReader в таблицу dt
-                dt.Load(reader);
-
-                // Создаём двухмерный массив и загружаем в него таблицу
                 //https://qarchive.ru/88699_zapis__massiva_v_diapazon_excel
+                // Создаём двухмерный массив и загружаем в него таблицу, 
+                // чтобы одним махом залить его в Ecxel
 
                 object[,] arr = new object[dt.Rows.Count, dt.Columns.Count];
                 for (int r = 0; r < dt.Rows.Count; r++)
@@ -178,83 +287,55 @@ namespace Vng.Uchet
                     }
                 }
 
-                #region Варианты форматирования
-                //oExcel.ActiveCell.NumberFormat = "#,##0.0"     '"#,##0.00"
-                //oExcel.ActiveCell.NumberFormat = "dd/mm/yyyyг.;@"
-                //oExcel.ActiveCell.NumberFormat = "[$-FC19]dd mmmm yyyy г.;@"
-                //oExcel.ActiveCell.NumberFormat = "m/d/yyyy"
-                //oExcel.ActiveCell.NumberFormat = "@"
-
-                //Excel.Range c1 = (Excel.Range)xlSheet.Cells[topRow, 2];                         //"B10"
-                //Excel.Range c2 = (Excel.Range)xlSheet.Cells[topRow + dt.Rows.Count - 1, 2];
-                //Excel.Range range = xlSheet.get_Range(c1, c2);
-                //range.HorizontalAlignment = Excel.Constants.xlCenter;
-                ////range.Font.Size = 9;
-                ////range.Font.Name = "Arial";
-                //range.NumberFormat = "@";
-
-                //oExcel.Columns("A:A").ColumnWidth = 8
-                //oExcel.Columns("B:B").ColumnWidth = 25
-                //oExcel.Rows("4:4").Font.Bold = True
-                //oExcel.Rows("4:4").RowHeight = 15
-                //oExcel.Rows("4:4").Font.Size = 7
-                //oExcel.Rows("4:4").VerticalAlignment = xlCenter
-                //oExcel.Rows("4:4").Interior.ColorIndex = 8
-                //oExcel.Rows("4:4").HorizontalAlignment = xlCenter
-                #endregion
+                nRw = dt.Rows.Count - 1;     // количество строк
+                bottomRow = topRow + nRw;
 
                 // форматирование столбцов для вывода данных
-                xl.ColumnFormat(2, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);   //инв.№
-                xl.ColumnFormat(3, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);   //модель
-                xl.ColumnFormat(4, topRow, topRow + dt.Rows.Count - 1, true, 0, 'C', "@", xlS);    //гос.№
-                xl.ColumnFormat(5, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "0000", xlS);    //год
-                xl.ColumnFormat(6, topRow, topRow + dt.Rows.Count - 1, false, 0, 'L', "@", xlS);    //VIN
-                xl.ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Кузов
-                xl.ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Шасси
-                xl.ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Двиг.
-                xl.ColumnFormat(10, topRow, topRow + dt.Rows.Count - 1, true, 9, 'C', "@", xlS);    //ПТС
-                xl.ColumnFormat(11, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yyyy", xlS);    //дата поступления
-                xl.ColumnFormat(12, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "@", xlS);    //бюджет
-                xl.ColumnFormat(13, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
-                xl.ColumnFormat(14, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ ввода в эксп.
-                xl.ColumnFormat(15, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
-                xl.ColumnFormat(16, topRow, topRow + dt.Rows.Count - 1, false, 0, 'C', "dd/mm/yy", xlS);    //дата приказ ввода в эксп.
-                xl.ColumnFormat(17, topRow, topRow + dt.Rows.Count - 1, true, 0, 'L', "@", xlS);    //приказ списания (передачи)
-                xl.ColumnFormat(18, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //куда
-                xl.ColumnFormat(19, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //закреплен
+                xl.ColumnFormat(2, topRow, bottomRow, false, 0, 'C', "@");   //инв.№
+                xl.ColumnFormat(3, topRow, bottomRow, true, 10, 'L', "@");   //модель
+                xl.ColumnFormat(4, topRow, bottomRow, true, 0, 'C', "@");    //гос.№
+                xl.ColumnFormat(5, topRow, bottomRow, false, 0, 'C', "0000");    //год
+                xl.ColumnFormat(6, topRow, bottomRow, false, 0, 'L', "@");    //VIN
+
+                xl.RegionFormat(7, 9, topRow, bottomRow, false, 10, 'L', "@");    //Кузов-Шасси-Двиг.
+
+                //xl.ColumnFormat(7, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Кузов
+                //xl.ColumnFormat(8, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Шасси
+                //xl.ColumnFormat(9, topRow, topRow + dt.Rows.Count - 1, false, 10, 'L', "@", xlS);    //Двиг.
+
+                xl.ColumnFormat(10, topRow, bottomRow, true, 9, 'C', "@");    //ПТС
+                xl.ColumnFormat(11, topRow, bottomRow, false, 0, 'C', "dd/mm/yyyy");    //дата поступления
+                xl.ColumnFormat(12, topRow, bottomRow, false, 0, 'C', "@");    //бюджет
+                xl.ColumnFormat(13, topRow, bottomRow, false, 0, 'C', "dd/mm/yy");    //дата приказ ввода в эксп.
+                xl.ColumnFormat(14, topRow, bottomRow, true, 0, 'L', "@");    //приказ ввода в эксп.
+                xl.ColumnFormat(15, topRow, bottomRow, true, 10, 'L', "@");    //закреплен
+                xl.ColumnFormat(16, topRow, bottomRow, false, 0, 'C', "dd/mm/yy");    //дата приказ ввода в эксп.
+                xl.ColumnFormat(17, topRow, bottomRow, true, 0, 'L', "@");    //приказ списания (передачи)
+
+                xl.RegionFormat(18, 19, topRow, bottomRow, true, 10, 'L', "@");    //куда-примечания
+
+                //xl.ColumnFormat(18, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //куда
+                //xl.ColumnFormat(19, topRow, topRow + dt.Rows.Count - 1, true, 10, 'L', "@", xlS);    //примечания
 
                 // Определяем диапазон таблицы в который зальём массив
                 Excel.Range c1 = (Excel.Range)xlS.Cells[topRow, 1];
-                Excel.Range c2 = (Excel.Range)xlS.Cells[topRow + dt.Rows.Count - 1, dt.Columns.Count];
+                Excel.Range c2 = (Excel.Range)xlS.Cells[bottomRow, dt.Columns.Count];
                 Excel.Range range = xlS.get_Range(c1, c2);
+                // выгружаем таблицу
                 range.Value = arr;
-                
+
                 range.VerticalAlignment = Excel.Constants.xlCenter;
-
-                #region Проверка на Null
-                //https://www.codeproject.com/Articles/19269/Export-large-data-from-a-GridView-and-DataReader-t
-                //    while (dr.Read())
-                //    {
-                //        sb = new StringBuilder();
-
-                //        for (int col = 0; col < dr.FieldCount - 1; col++)
-                //        {
-                //            if (!dr.IsDBNull(col))
-                //                sb.Append(dr.GetValue(col).ToString().Replace(",", " "));
-                //            sb.Append(",");
-                //        }
-                //        if (!dr.IsDBNull(dr.FieldCount - 1))
-                //            sb.Append(dr.GetValue(dr.FieldCount - 1).ToString().Replace(",", " "));
-                //        Response.Write(sb.ToString() + "\n");
-                //        Response.Flush();
-                //    }
-                //    dr.Dispose();
-                #endregion
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        // итоги таблицы
+        private void Podval(Worksheet xlS)
+        {
+
         }
     }
 }

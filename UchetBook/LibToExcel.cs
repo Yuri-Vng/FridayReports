@@ -1,32 +1,39 @@
 ﻿using System;
 
+using Microsoft.Office.Interop.Excel;
+
 using Excel = Microsoft.Office.Interop.Excel;
+
 
 namespace Vng.Common
 {
     class LibToExcel
     {
+        public Worksheet? Xls { get; set; }      //Excel.Worksheet
+
+        public LibToExcel() { }
+        public LibToExcel(Worksheet xl) 
+        {
+            Xls = xl;   
+        }
+
         public void CellMerge(string title, string cell1, string cell2, double tWidth,
-                            bool wrpText, double tFont, char tHor, char tVer,
-                            int tOrient, Excel.Worksheet xlSh)
+                            bool wrpText, double tFont, char tHor, char tVer, int tOrient)
         {
             Excel.Range xlSheetRange;               //Выделеная область
 
             // диапазон
-            xlSheetRange = xlSh.get_Range(cell1, cell2);
+            xlSheetRange = Xls.get_Range(cell1, cell2);
             // Объединяем ячейки
             xlSheetRange.Merge(Type.Missing);
             xlSheetRange.Value2 = title;
             xlSheetRange.Orientation = tOrient;
 
-            if (wrpText)
-            { xlSheetRange.WrapText = wrpText; }
+            if (wrpText)    { xlSheetRange.WrapText = wrpText; }
 
-            if (tWidth > 0)
-            { xlSheetRange.ColumnWidth = tWidth; }
+            if (tWidth > 0) { xlSheetRange.ColumnWidth = tWidth; }
 
-            if (tFont > 0)
-            { xlSheetRange.Font.Size = tFont; }
+            if (tFont > 0)   { xlSheetRange.Font.Size = tFont; }
 
             switch (tHor)
             {
@@ -45,8 +52,7 @@ namespace Vng.Common
 
             switch (tVer)
             {
-                case 'C':
-                    //Задаем выравнивание по центру
+                case 'C':                       //Задаем выравнивание по центру
                     xlSheetRange.VerticalAlignment = Excel.Constants.xlCenter;
                     break;
                 case 'T':
@@ -61,11 +67,45 @@ namespace Vng.Common
         }
 
         public void ColumnFormat(int column, int topRow, int bottomRow, bool wrpText,
-                             double tFont, char tHor, string tFormat, Excel.Worksheet xlSh)
+                             double tFont, char tHor, string tFormat)
         {
-            Excel.Range c1 = (Excel.Range)xlSh.Cells[topRow, column];              //"B10"
-            Excel.Range c2 = (Excel.Range)xlSh.Cells[bottomRow, column];
-            Excel.Range range = xlSh.get_Range(c1, c2);
+            Excel.Range c1 = (Excel.Range)Xls.Cells[topRow, column];              //"B10"
+            Excel.Range c2 = (Excel.Range)Xls.Cells[bottomRow, column];
+            Excel.Range range = Xls.get_Range(c1, c2);
+
+            if (wrpText)
+            { range.WrapText = wrpText; }
+
+            switch (tHor)
+            {
+                case 'C':                       //Задаем выравнивание по центру
+                    range.HorizontalAlignment = Excel.Constants.xlCenter;
+                    break;
+                case 'L':
+                    range.HorizontalAlignment = Excel.Constants.xlLeft;
+                    break;
+                case 'R':
+                    range.HorizontalAlignment = Excel.Constants.xlRight;
+                    break;
+                default:
+                    break;
+            }
+
+            if (tFont > 0)
+            { range.Font.Size = tFont; }
+
+            //range.Font.Name = "Arial";
+            //range.NumberFormat = "@";
+
+            range.NumberFormat = tFormat;
+        }
+        
+        public void RegionFormat(int column1, int column2, int topRow, int bottomRow, bool wrpText,
+                          double tFont, char tHor, string tFormat)
+        {
+            Excel.Range c1 = (Excel.Range)Xls.Cells[topRow, column1];              //"B10"
+            Excel.Range c2 = (Excel.Range)Xls.Cells[bottomRow, column2];
+            Excel.Range range = Xls.get_Range(c1, c2);
 
             if (wrpText)
             { range.WrapText = wrpText; }
