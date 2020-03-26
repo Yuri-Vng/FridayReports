@@ -1,0 +1,30 @@
+{
+  "ApplicationName": "CoreConfigurationDemo",
+  "connectionStrings": {
+    "MyDb": "server=localhost;database=mydb;integrated security=true",
+    "AccessDb": "Dsn=MS Access Database;Dbq=X:\\VNG\\UchDat.accdb;defaultdir=X:\\VNG;driverid=25;fil=MS Access;maxbuffersize=2048;pagetimeout=5;uid=admin"
+  },
+  "connectionStringsAccessDb": {
+    "Dsn": "Dsn=MS Access Database;",
+    "Dbq": "Dbq=X:\\VNG\\UchDat.accdb;",
+    "defaultdir": "defaultdir=X:\\VNG;",
+    "driverid": "driverid=25;",
+    "fil": "fil=MS Access;",
+    "maxbuffersize": "maxbuffersize=2048;",
+    "pagetimeout": "pagetimeout=5;",
+    "uid": "uid=admin;"
+  },
+  "apiSettings": {
+    "url": "http://localhost/api",
+    "apiKey": "sk_1234566",
+    "useCache": true
+  },
+  "AccessDb": {
+    "PathDataBase": "X:\\VNG",
+    "FileName": "UchDat.accdb"
+  },
+  "Templates": {
+    "Path": "Templates",
+    "UchetBookFile": "UchetBook.xltx"
+  }
+}

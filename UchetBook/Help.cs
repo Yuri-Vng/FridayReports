@@ -14,7 +14,12 @@ namespace Vng.Uchet
         //            defaultdir=X:\VNG;driverid=25;fil=MS Access;
         //            maxbuffersize=2048;pagetimeout=5;uid=admin";
 
+        //connectionString = @$"Dsn=MS Access Database; Dbq={Path.Combine(cnDir, dbName)};
+        //                        defaultdir={cnDir};driverid=25;fil=MS Access;
+        //                        maxbuffersize=2048;pagetimeout=5;uid=admin";
+
         #region CurrentDirectory
+        // string projectDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
         //string s = Environment.CurrentDirectory;
         //string ss = Directory.GetCurrentDirectory();
         //string projectDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
@@ -229,17 +234,36 @@ namespace Vng.Uchet
         #endregion
 
         #region releaseExcel()
-            ////Показываем ексель
-            //xlApp.Visible = true;
+        ////Показываем ексель
+        //xlApp.Visible = true;
 
-            //xlApp.Interactive = true;
-            //xlApp.ScreenUpdating = true;
-            //xlApp.UserControl = true;
+        //xlApp.Interactive = true;
+        //xlApp.ScreenUpdating = true;
+        //xlApp.UserControl = true;
 
-            ////Отсоединяемся от Excel
-            ////releaseObject(xlSheetRange);
-            ////releaseObject(xlSheet);
-            //releaseObject(xlApp);
+        ////Отсоединяемся от Excel
+        ////releaseObject(xlSheetRange);
+        ////releaseObject(xlSheet);
+        //releaseObject(xlApp);
         #endregion
+
+        #region json
+        //      {
+        //"myConfig": {
+        //  "item1":  "config options" ,
+        //  "PathDataBase":  "X:\\VNG" ,
+        //  "item2":  "UchDat accdb"  
+        //},
+        //"exclude": [
+        //  "**/bin",
+        //  "**/bower_components",
+        //  "**/jspm_packages",
+        //  "**/node_modules",
+        //  "**/obj",
+        //  "**/platforms"
+        //]
+        //  }
+        #endregion
+
     }
 }

@@ -1,13 +1,24 @@
 ﻿using System;
 using System.IO;
 
+//https://benfoster.io/blog/net-core-configuration-legacy-projects
+//https://stackoverflow.com/questions/53605249/json-configuration-in-full-net-framework-console-app
+// If you want to use config json files as in .Net Core, you can install NuGets
+// Microsoft.Extensions.Configuration 
+// Microsoft.Extensions.Configuration.Json 
+// Microsoft.Extensions.Configuration.Binder
+// and then initialize the configuration
+
 namespace Vng.Uchet
 {
     class Program
     {
         static void Main(string[] args)
         {
-            string? projectDir;
+            string? projectDir=default;
+
+            // projectDir = string.Empty;      //projectDir = ""
+            // projectDir = default;           // или default(string); -> projectDir = null
 
             Console.WriteLine("Укажите какие отчеты следует сформировать:");
             Console.WriteLine("\t  Книга учета (777) - 1:");
@@ -24,16 +35,13 @@ namespace Vng.Uchet
                 case "1":
                     if (yesNo == "y" || yesNo == "н" || yesNo == "Y" || yesNo == "Н")
                     {
-                        projectDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                        // в рабочем варианте
-                        //projectDir = Environment.CurrentDirectory + @"\Templates\UchetBook.xltx";
+                        if (AppDomain.CurrentDomain.BaseDirectory != null)
+                        {            
+                            projectDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
+                        }
                     }
-                    else
-                    {
-                        //projectDir = string.Empty;      //projectDir = ""
-                        projectDir = default;           // или default(string); -> projectDir = null
-                    }
-                    // создаем объект для подключения к БД и загрузки книги учета
+
+                    // создаем объект для подключения к БД и загрузки книги учета (UB)
                     OdbcData oDbcUb = new OdbcData("UB");                         
                     // Выгружаем reader в таблицу DataTable
                     var xlS = new ReportToExcel(oDbcUb.LoadData(), projectDir);

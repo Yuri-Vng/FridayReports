@@ -6,8 +6,9 @@ using System.IO;
 // Добавим COM MS Office 15.0 Object Library и MS Ecxel 15.0 Object Library
 using Excel = Microsoft.Office.Interop.Excel;
 
-using Vng.Common;
 using Microsoft.Office.Interop.Excel;
+using Microsoft.Extensions.Configuration;
+using Vng.Common;
 
 #region Excel in Core.3
 /*
@@ -37,63 +38,6 @@ using Microsoft.Office.Interop.Excel;
 
 namespace Vng.Uchet
 {
-    //public class UchetBookToExcel: ReportToExcel
-    //{
-    //    //public UchetBookToExcel(OdbcDataReader reader) : base (reader)
-    //    //{ 
-    //    //}
-
-    //    //public void CreateSheet()
-    //    //{
-    //    //    //try
-    //    //    //{
-    //    //    //    //добавляем книгу
-    //    //    //    xlApp.Workbooks.Add(Type.Missing);
-
-    //    //    //    if (xlApp.Sheets.Count == 1)        //для office 13
-    //    //    //    {
-    //    //    //        xlApp.Sheets.Add();
-    //    //    //    }
-    //    //    //    xlApp.EnableEvents = false;     //отключить события в excel
-
-    //    //    //    //I.Список ТС
-    //    //    //    //выбираем лист на котором будем работать (Лист 1)
-    //    //    //    xlSheet = (Excel.Worksheet)xlApp.Sheets[1];
-    //    //    //    //Название листа
-    //    //    //    xlSheet.Name = "Список ТС";
-    //    //    //    //цвет вкладки
-    //    //    //    xlSheet.Tab.Color = 255;
-    //    //    //    // Заголовог таблицы
-    //    //    //    string Zagolovok = "Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»";
-
-    //    //    //    // названия столбцов таблицы
-    //    //    //    Shapka(Zagolovok, xlSheet);
-    //    //    //    // вывод данных
-    //    //    //    ExcelData(xlSheet);
-    //    //    //    // итоги
-    //    //    //    //Podval();
-    //    //    //}
-    //    //    //catch (Exception ex)
-    //    //    //{
-    //    //    //    Console.WriteLine(ex.ToString());
-    //    //    //}
-    //    //    //finally
-    //    //    //{
-    //    //    //    //Показываем ексель
-    //    //    //    xlApp.Visible = true;
-
-    //    //    //    xlApp.Interactive = true;
-    //    //    //    xlApp.ScreenUpdating = true;
-    //    //    //    xlApp.UserControl = true;
-
-    //    //    //    //Отсоединяемся от Excel
-    //    //    //    //releaseObject(xlSheetRange);
-    //    //    //    releaseObject(xlSheet);
-    //    //    //    releaseObject(xlApp);
-    //    //    //}
-    //    //}
-    //}
-
     public class ReportToExcel
     {
         public Application? xlApp;                    //Екземпляр приложения Excel.Application
@@ -125,16 +69,19 @@ namespace Vng.Uchet
             // создаем отчет на основе шаблона
             else
             {
-                //xlApp.Workbooks.Open(
-                //     @"D:\19\VNG\FridayReports\UchetBook\Templates\UchetBook.xltx");
+                // файл конфигурации
+                IConfigurationRoot configuration = new ConfigurationBuilder()
+                .AddJsonFile("config.json", optional: true)
+                .Build();
 
-  
+                // анонимный тип
+                var config = new
+                {
+                    Dir = configuration["Templates:Path"],
+                    File = configuration["Templates:UchetBookFile"]
+                };
 
-                string projectDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\.."));
-                xlApp.Workbooks.Open(projectDir + @"\Templates\UchetBook.xltx");
-
-                // в рабочем варианте
-                //xlApp.Workbooks.Open(Environment.CurrentDirectory + @"\Templates\UchetBook.xltx");
+                xlApp.Workbooks.Open(Path.GetFullPath(Path.Combine(tDir, config.Dir, config.File)));
             }
             xlApp.EnableEvents = false;     //отключить события в excel
         }
