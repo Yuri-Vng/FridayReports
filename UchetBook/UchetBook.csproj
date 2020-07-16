@@ -5,7 +5,22 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Vng.Uchet</RootNamespace>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>carorange.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Prefer32Bit>true</Prefer32Bit>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Prefer32Bit>true</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="LibToExcel.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <COMReference Include="Microsoft.Office.Excel.dll">
@@ -39,6 +54,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
     <PackageReference Include="System.Data.Odbc" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LibToExcel\LibToExcel.csproj" />
   </ItemGroup>
 
   <ItemGroup>

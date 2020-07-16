@@ -265,5 +265,12 @@ namespace Vng.Uchet
         //  }
         #endregion
 
+        //private static void Wait(Task<bool> qqq)
+        //{
+        //    //throw new NotImplementedException();
+        //    Task.Delay(10000);
+        //    Console.WriteLine($"qqq1 = {qqq}");
+        //}
+
     }
 }

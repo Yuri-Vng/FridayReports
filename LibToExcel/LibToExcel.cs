@@ -5,18 +5,19 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Vng.Common
 {
-    class LibToExcel
+    public class LibToExcel
     {
+
         public Worksheet? Xls { get; set; }      //Excel.Worksheet
 
         // конструктор по умолчанию
-        public LibToExcel() 
+        public LibToExcel()
         { }
 
         // конструктор
-        public LibToExcel(Worksheet xl) 
+        public LibToExcel(Worksheet xl)
         {
-            Xls = xl;   
+            Xls = xl;
         }
 
         // задаём выравнивание в ячейке таблицы Excel
@@ -26,17 +27,17 @@ namespace Vng.Common
             Excel.Range xlSheetRange;               //Выделеная область
 
             // диапазон
-            xlSheetRange = Xls.get_Range(cell1, cell2);
+            xlSheetRange = Xls!.get_Range(cell1, cell2);
             // Объединяем ячейки
             xlSheetRange.Merge(Type.Missing);
             xlSheetRange.Value2 = title;
             xlSheetRange.Orientation = tOrient;
 
-            if (wrpText)    { xlSheetRange.WrapText = wrpText; }
+            if (wrpText) { xlSheetRange.WrapText = wrpText; }
 
             if (tWidth > 0) { xlSheetRange.ColumnWidth = tWidth; }
 
-            if (tFont > 0)   { xlSheetRange.Font.Size = tFont; }
+            if (tFont > 0) { xlSheetRange.Font.Size = tFont; }
 
             switch (tHor)
             {
@@ -71,9 +72,9 @@ namespace Vng.Common
 
         // форматирование столбцов таблицы Excel
         public void ColumnFormat(int column, int topRow, int bottomRow, bool wrpText,
-                             double tFont, char tHor, string tFormat)
+                                double tFont, char tHor, string tFormat)
         {
-            Excel.Range c1 = (Excel.Range)Xls.Cells[topRow, column];              //"B10"
+            Excel.Range c1 = (Excel.Range)Xls!.Cells[topRow, column];              //"B10"
             Excel.Range c2 = (Excel.Range)Xls.Cells[bottomRow, column];
             Excel.Range range = Xls.get_Range(c1, c2);
 
@@ -103,12 +104,12 @@ namespace Vng.Common
 
             range.NumberFormat = tFormat;
         }
-        
+
         // форматирование указанной области таблицы Excel
         public void RegionFormat(int column1, int column2, int topRow, int bottomRow, bool wrpText,
-                          double tFont, char tHor, string tFormat)
+                            double tFont, char tHor, string tFormat)
         {
-            Excel.Range c1 = (Excel.Range)Xls.Cells[topRow, column1];              //"B10"
+            Excel.Range c1 = (Excel.Range)Xls!.Cells[topRow, column1];              //"B10"
             Excel.Range c2 = (Excel.Range)Xls.Cells[bottomRow, column2];
             Excel.Range range = Xls.get_Range(c1, c2);
 

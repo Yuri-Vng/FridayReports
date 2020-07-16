@@ -40,34 +40,29 @@ namespace Vng.Uchet
 {
     public class ReportToExcel
     {
-        public Application? xlApp;                    //Екземпляр приложения Excel.Application
-        Worksheet? xlSheet;                           //Лист Excel.Worksheet
-       //Excel.Range xlSheetRange;                   //Выделеная область
+        public Application xlApp;                       //Екземпляр приложения Excel.Application
+        Worksheet? xlSheet;                             //Лист Excel.Worksheet
+        //Excel.Range xlSheetRange;                     //Выделеная область
 
         public OdbcDataReader? Reader { get; set; }
         public System.Data.DataTable? dt { get; set; }
 
+        // конструктор по умолчанию
         public ReportToExcel() : this (null, null) 
         {
         }
-
+        
+        // конструктор
         public ReportToExcel(System.Data.DataTable? table, string? tDir)
         {
+            string settingsPath;
+            bool flagApp = default;
+
             dt = table;
             xlApp = new Application();
 
-            // создаем отчет программно
-            if  (tDir == null)                         //if (tDir == "")
-            {
-                //добавляем книгу
-                xlApp.Workbooks.Add(Type.Missing);
-                if (xlApp.Sheets.Count == 1)        //для office 13
-                {
-                    xlApp.Sheets.Add();
-                }
-            }
             // создаем отчет на основе шаблона
-            else
+            if (tDir != null)
             {
                 // файл конфигурации
                 IConfigurationRoot configuration = new ConfigurationBuilder()
@@ -80,15 +75,34 @@ namespace Vng.Uchet
                     Dir = configuration["Templates:Path"],
                     File = configuration["Templates:UchetBookFile"]
                 };
-
-                xlApp.Workbooks.Open(Path.GetFullPath(Path.Combine(tDir, config.Dir, config.File)));
+                settingsPath = Path.GetFullPath(Path.Combine(tDir, config.Dir, config.File));
+                if (File.Exists(settingsPath))
+                {
+                    xlApp.Workbooks.Open(settingsPath);
+                    flagApp = true;
+                }
             }
+
+            // создаем отчет программно (если tDir == null или flagApp == false)
+            if (!flagApp)                         
+            {
+                xlApp = new Application();
+                //добавляем книгу
+                xlApp.Workbooks.Add(Type.Missing);
+                if (xlApp.Sheets.Count == 1)        //для office 13
+                {
+                    xlApp.Sheets.Add();
+                }
+            }
+
             xlApp.EnableEvents = false;     //отключить события в excel
         }
 
         // работаем с Excel
+        //public bool ExelObjecCars(string zagolovok)
         public void ExelObjecCars(string zagolovok)
         {
+            //bool bFlag = false;
             try
             {
                 //I.Список ТС
@@ -107,6 +121,7 @@ namespace Vng.Uchet
                     ExcelData(xlSheet);
                     // итоги
                     //Podval();
+                    //bFlag = true;
                 }
             }
             catch (Exception ex)
@@ -133,14 +148,18 @@ namespace Vng.Uchet
                     releaseObject(xlApp);
                 }
             }
+            //return bFlag;
+            //return true;
         }
 
         // выгружаем Excel из памяти
-        private void releaseObject(object obj)
+        private void releaseObject(object? obj)
         {
             try
             {
+                #nullable disable           //#nullable enable
                 System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
+                #nullable restore
                 obj = null;
             }
             catch (Exception ex)
@@ -214,6 +233,12 @@ namespace Vng.Uchet
         {
             LibToExcel xl = new LibToExcel(xlS);
 
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                Console.WriteLine("Нет данных!");
+                return;
+            }
+
             try
             {
                 int topRow = 10;
@@ -224,7 +249,7 @@ namespace Vng.Uchet
                 // Создаём двухмерный массив и загружаем в него таблицу, 
                 // чтобы одним махом залить его в Ecxel
 
-                object[,] arr = new object[dt.Rows.Count, dt.Columns.Count];
+                object[,] arr = new object[dt!.Rows.Count, dt.Columns.Count];
                 for (int r = 0; r < dt.Rows.Count; r++)
                 {
                     DataRow dr = dt.Rows[r];

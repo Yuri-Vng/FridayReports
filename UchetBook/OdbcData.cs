@@ -2,20 +2,33 @@
 using System.Data;
 using System.Data.Odbc;
 
+#region файл конфигурации
+//https://benfoster.io/blog/net-core-configuration-legacy-projects
+//https://stackoverflow.com/questions/53605249/json-configuration-in-full-net-framework-console-app
+// If you want to use config json files as in .Net Core, you can install NuGets
+// Microsoft.Extensions.Configuration 
+// Microsoft.Extensions.Configuration.Json 
+// Microsoft.Extensions.Configuration.Binder
+// and then initialize the configuration
+#endregion
+
 using Microsoft.Extensions.Configuration;
 
 namespace Vng.Uchet
 {
     public class OdbcData
     {
-        string? queryString;                // строка запроса
+        string queryString = string.Empty;             // строка запроса
 
         // параметры берем из конфигурационного файла
         readonly string connectionString;
 
+        // конструктор по умолчанию
         public OdbcData() :this ("UB") 
         {
         }
+
+        // конструктор для конкретного отчета
         public OdbcData(string tCod) 
         {
             // файл конфигурации
@@ -65,9 +78,9 @@ namespace Vng.Uchet
                 case "UB":              // Книга учета
                     queryString =
                           "SELECT nn, inn, Model, GosN, GodV, Vin, KuzN, ShassiN, DvN, PtsN, dtPostup, "
-                              + " Bdg, dtPrikEk, PrikEk, Pdr, dtPrikSp, PrikSp, Kuda, Appendix "
+                              + " Bdg, dtPrikEk, PrikEk, Pdr, dtSp, SpDoc, Kuda, Appendix "
                               + " FROM tblUchetBook "
-                              + " WHERE GodV > ? AND Bdg <> ? "
+                              + " WHERE GodV > ? AND id_Bdg >= ? "
                               + " ORDER BY id_Book ASC, nn ASC, Model DESC;";
                     break;
                 case "2":
@@ -86,6 +99,7 @@ namespace Vng.Uchet
             }
         }
 
+        // загрузка данных в reader
         public DataTable LoadData()
         {
             DataTable dt = new DataTable();
@@ -93,7 +107,8 @@ namespace Vng.Uchet
             // Specify the parameter value.
             int paramValue1 = 1901;
             //string paramValue2 = "4949";
-            string paramValue3 = "MB";
+            //string paramValue3 = "MB";
+            int paramValue3 = 1;
 
             // Create and open the connection in a using block. This ensures that 
             // all resources will be closed and disposed when the code exits.

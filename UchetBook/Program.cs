@@ -1,65 +1,89 @@
 ﻿using System;
-using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
-//https://benfoster.io/blog/net-core-configuration-legacy-projects
-//https://stackoverflow.com/questions/53605249/json-configuration-in-full-net-framework-console-app
-// If you want to use config json files as in .Net Core, you can install NuGets
-// Microsoft.Extensions.Configuration 
-// Microsoft.Extensions.Configuration.Json 
-// Microsoft.Extensions.Configuration.Binder
-// and then initialize the configuration
+using static System.Console;
+using static Vng.Uchet.SelectReport;
 
 namespace Vng.Uchet
 {
     class Program
-    {
-        static void Main(string[] args)
-        {
-            string? projectDir=default;
+    {       
+        //public static string ProjectPath = string.Empty;      
 
-            // projectDir = string.Empty;      //projectDir = ""
-            // projectDir = default;           // или default(string); -> projectDir = null
+        static void Main(string[] args)             //static async void Main(string[] args)
+        {            
+            if (ProjectPath == string.Empty) {      // Vng.Uchet.SelectReport.ProjectPath
+                return;                             // ошибка приложения выход    
+            }        
+            bool repeat = true;                     // можно формировать несколько отчетов подряд
+            bool firstSelect = true;                // еще не был выбран ни один отчет
 
-            Console.WriteLine("Укажите какие отчеты следует сформировать:");
-            Console.WriteLine("\t  Книга учета (777) - 1:");
-            Console.WriteLine("\t\t     Отмена - 0:");
-            Console.Write("Укажите цифру и нажмите Enter: ");
-            string selectReport = Console.ReadLine();
-
-            Console.WriteLine("\nСоздать отчет на основе существующего шаблона (Y/N)?");
-            Console.Write("Укажите Y(да) или N(нет) и нажмите Enter: ");
-            string yesNo = Console.ReadLine();
-
-            switch (selectReport) 
+            while (repeat)                          
             {
-                case "1":
-                    if (yesNo == "y" || yesNo == "н" || yesNo == "Y" || yesNo == "Н")
-                    {
-                        if (AppDomain.CurrentDomain.BaseDirectory != null)
-                        {            
-                            projectDir = Path.GetFullPath(AppDomain.CurrentDomain.BaseDirectory);
-                        }
-                    }
-
-                    // создаем объект для подключения к БД и загрузки книги учета (UB)
-                    OdbcData oDbcUb = new OdbcData("UB");                         
-                    // Выгружаем reader в таблицу DataTable
-                    var xlS = new ReportToExcel(oDbcUb.LoadData(), projectDir);
-                    // Выгружаем в Excel
-                    xlS.ExelObjecCars("Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»");
-                    break;
-                case "2":
-                    Console.WriteLine("Функция пока отсутствует");
-                    break;
-                case "3":
-                    Console.WriteLine("Функция пока отсутствует");
-                    break;
-                case "0":
-                    break;
-                default:
-                    break;
+                repeat = SelectOfReport(firstSelect);   // выбор отчета
+                firstSelect = false;
             }
-            //Console.ReadLine();
+            ReadLine();
+        }
+
+        // Вызов DoExcelAsync с использованием Task
+
+        //public async Task<bool> DoExcelAsync(string? tDir)
+        //async Task<bool> DoExcelAsync(string? tDir, CancellationToken token)
+
+        public async Task DoExcelAsync(string? tDir, string tTmpl)    //если tDir = null строим отчет программно
+        {          
+            var result = false;
+
+            // создаем объект для подключения к БД и загрузки книги учета (UB)
+            OdbcData oDbcUb = new OdbcData(tTmpl);      
+            // Выгружаем reader в таблицу DataTable
+            var xlS = new ReportToExcel(oDbcUb.LoadData(), tDir);
+
+            Task generateResultTask = Task.Run(() => xlS.ExelObjecCars("Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»"));
+            //Task<bool> generateResultTask = Task.Run(() => xlS.ExelObjecCars("Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»"));
+            //await generateResultTask.ConfigureAwait(false);
+            
+            //var allTasks = new List<Task> { generateResultTask, baconTask, toastTask };
+            var allTasks = new List<Task> { generateResultTask };
+
+            while (allTasks.Any())
+            {
+                Task finished = await Task.WhenAny(allTasks);
+                if (finished == generateResultTask)
+                {
+                    WriteLine("eggs are ready");
+                }
+                //else if (finished == baconTask)
+                //{
+                //    Console.WriteLine("bacon is ready");
+                //}
+                //else if (finished == toastTask)
+                //{
+                //    Console.WriteLine("toast is ready");
+                //}
+                allTasks.Remove(finished);
+            }
+            //await generateResultTask;
+
+            //// Выгружаем в Excel
+            ////await Task.Run(() => xlS.ExelObjecCars("Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»"));
+            ////bFlag = result;
+            ////result = await Task.Run(() => xlS.ExelObjecCars("Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»"));
+            ////bFlag = result;
+            ////return await Task.Run(() => xlS.ExelObjecCars("Книга учета ТС ФГКУ «УВО ВНГ России по городу Москве»"));
+            ////bFlag = result;
+            ////return bFlag;
+            ////Console.WriteLine($"result = {result}");
+            ////return result;
+
+            WriteLine($"Факториал равен {result}");
+
+            //return generateResultTask.Result;
+            //return generateResultTask;
         }
     }
  }

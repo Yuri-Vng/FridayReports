@@ -26,5 +26,10 @@
   "Templates": {
     "Path": "Templates",
     "UchetBookFile": "UchetBook.xltx"
+  },
+  "OnTemplate": {
+    "BookUchet": "No",
+    "Specifications": "Yes",
+    "FridayReport": "Yes"
   }
 }
