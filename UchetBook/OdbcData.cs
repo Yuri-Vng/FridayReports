@@ -21,15 +21,10 @@ namespace Vng.Uchet
         string queryString = string.Empty;             // строка запроса
 
         // параметры берем из конфигурационного файла
-        readonly string connectionString;
+        readonly static string connectionString;
 
-        // конструктор по умолчанию
-        public OdbcData() :this ("UB") 
-        {
-        }
-
-        // конструктор для конкретного отчета
-        public OdbcData(string tCod) 
+        //статический конструктор 
+        static OdbcData()
         {
             // файл конфигурации
             IConfigurationRoot configuration = new ConfigurationBuilder()
@@ -51,7 +46,7 @@ namespace Vng.Uchet
                     Dbq = configuration["connectionStringsAccessDb:Dbq"],
                     DefaultDir = configuration["connectionStringsAccessDb:defaultdir"],
                     DriverId = configuration["connectionStringsAccessDb:driverid"],
-                    Fil  =configuration["connectionStringsAccessDb:fil"],
+                    Fil = configuration["connectionStringsAccessDb:fil"],
                     MaxBufferSize = configuration["connectionStringsAccessDb:maxbuffersize"],
                     PageTimeout = configuration["connectionStringsAccessDb:pagetimeout"],
                     Uid = configuration["connectionStringsAccessDb:uid"]
@@ -70,9 +65,61 @@ namespace Vng.Uchet
 
             // The connection string 
             // PM> Install-Package System.Data.Odbc -Version 4.7.0
-            connectionString = config.cnn.Dsn + config.cnn.Dbq + config.cnn.DefaultDir 
-                                + config.cnn.DriverId + config.cnn.Fil + config.cnn.MaxBufferSize 
+            connectionString = config.cnn.Dsn + config.cnn.Dbq + config.cnn.DefaultDir
+                                + config.cnn.DriverId + config.cnn.Fil + config.cnn.MaxBufferSize
                                 + config.cnn.PageTimeout + config.cnn.Uid;
+        }
+
+        // конструктор по умолчанию
+        public OdbcData() : this("UB")
+        {
+        }
+
+        // конструктор для конкретного отчета
+        public OdbcData(string tCod) 
+        {
+            //// файл конфигурации
+            //IConfigurationRoot configuration = new ConfigurationBuilder()
+            //.AddJsonFile("config.json", optional: true)
+            //.Build();
+
+            //// анонимный тип
+            //var config = new
+            //{
+            //    MyDbConnectionString = configuration["ConnectionStrings:MyDb"],
+            //    PathSettings = new
+            //    {
+            //        Dir = configuration["AccessDb:PathDataBase"],
+            //        File = configuration["AccessDb:FileName"]
+            //    },
+            //    cnn = new
+            //    {
+            //        Dsn = configuration["connectionStringsAccessDb:Dsn"],
+            //        Dbq = configuration["connectionStringsAccessDb:Dbq"],
+            //        DefaultDir = configuration["connectionStringsAccessDb:defaultdir"],
+            //        DriverId = configuration["connectionStringsAccessDb:driverid"],
+            //        Fil  =configuration["connectionStringsAccessDb:fil"],
+            //        MaxBufferSize = configuration["connectionStringsAccessDb:maxbuffersize"],
+            //        PageTimeout = configuration["connectionStringsAccessDb:pagetimeout"],
+            //        Uid = configuration["connectionStringsAccessDb:uid"]
+            //    }
+            //};
+
+            //#region Path.Combine(cnDir, dbName)
+            ////readonly string cnDir;              // = "X:\\VNG\\";
+            ////readonly string dbName;             // = "UchDat.accdb";
+            ////cnDir = config.PathSettings.Dir;
+            ////dbName = config.PathSettings.File;
+            ////connectionString = @$"Dsn=MS Access Database; Dbq={Path.Combine(cnDir, dbName)};
+            ////                        defaultdir={cnDir};driverid=25;fil=MS Access;
+            ////                        maxbuffersize=2048;pagetimeout=5;uid=admin";
+            //#endregion
+
+            //// The connection string 
+            //// PM> Install-Package System.Data.Odbc -Version 4.7.0
+            //connectionString = config.cnn.Dsn + config.cnn.Dbq + config.cnn.DefaultDir 
+            //                    + config.cnn.DriverId + config.cnn.Fil + config.cnn.MaxBufferSize 
+            //                    + config.cnn.PageTimeout + config.cnn.Uid;
             switch (tCod)
             {
                 case "UB":              // Книга учета
